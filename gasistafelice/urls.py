@@ -3,7 +3,7 @@ from django.conf import settings
 
 # Base generic admin site for superusers
 from django.contrib import admin
-admin.autodiscover()
+#admin.autodiscover()
 
 from gasistafelice.gas_admin.models import gas_admin
 
