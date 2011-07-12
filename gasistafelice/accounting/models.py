@@ -97,3 +97,37 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         return _("%(type)s issued by %(issuer)s at %(date)s") % {'type' : self.type, 'issuer' : self.issuer, 'date' : self.date}
+    
+class Invoice(models.Model):
+    """
+    An invoice document issued by a subject against another subject.
+    
+    This model contains metadata useful for invoice management, embodying the actual document as a `FileField`. 
+    
+    Those metadata can be used to link invoices (particularly supplier ones) with GAS accounting management;    
+    for example, when an invoice is payed, the system could automatically create a transaction reflecting this action.     
+    """
+    # who issued the invoice
+    issuer = models.ForeignKey(Subject)
+    # who have to pay for the invoice
+    recipient = models.ForeignKey(Subject)
+    # invoice's amount (excluding taxes)
+    net_amount = CurrencyField()
+    # taxes due for the invoice (VAT,..)
+    taxes = CurrencyField(blank=True, null=True)
+    # when the invoice has been issued
+    issue_date = models.DateTimeField()
+    # when the invoice is due
+    due_date = models.DateTimeField()
+    # FIXME: implement a more granular storage pattern
+    document = models.FileField(upload_to='/invoices')
+    
+    def __unicode__(self):
+        return _("Invoice issued by %(issuer)s to %(recipient)s on date %(issue_date)s" % {'issuer' : self.issuer, 'recipient' : self.recipient, 'issue_date' : self.issue_date} )
+    
+    @property
+    def total_amount(self):
+        """Total amount for the invoice (including taxes)."""
+        return self.net_amount + self.taxes
+    
+    
