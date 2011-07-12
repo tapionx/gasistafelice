@@ -94,7 +94,7 @@ INSTALLED_APPS = (
     'history',
     'gasistafelice.auth',
     'gasistafelice.base',
-    'gasistafelice.bank',
+    'gasistafelice.accounting',
     'gasistafelice.supplier',
     'gasistafelice.gas',
     'gasistafelice.admin',
