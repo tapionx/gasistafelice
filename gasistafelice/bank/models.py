@@ -29,7 +29,7 @@ class Account(models.Model):
         #return self.balance
         return _("%(balance)s") % {'balance' : self.balance}
 
-class Movement(models.Model):
+class Transaction(models.Model):
     """Economic movement
 
     """
