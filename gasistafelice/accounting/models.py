@@ -6,9 +6,11 @@ from permissions.models import Role
 from permissions import PermissionBase # mix-in class for permissions management
 
 from gasistafelice.base.fields import CurrencyField
-from gasistafelice.base.models import Resource, Person
+from gasistafelice.base.models import Subject
 
-from django.db import models
+from consts import ACCOUNT_TYPES, TRANSACTION_TYPES
+
+from datetime import datetime
 from decimal import Decimal
 
 class Account(models.Model):
@@ -28,16 +30,35 @@ class Account(models.Model):
     
     An account can be merely a placeholder (just a container of subaccounts, no transactions).  
     """
-
-    #TODO: This is the basis of the economic part. To discuss and extend
-    balance = CurrencyField(default=Decimal("0"))
-    #COMMENT: DecimalField --> 84 table on MySQL FloatField --> 84 table
-    #COMMENT fero: what does this mean?
-
+    
+    parent = models.ForeignKey('Account')
+    name = models.CharField(max_length=128)
+    type = models.CharField(max_length=128, choices=ACCOUNT_TYPES)
+    placeholder = models.BooleanField(default=False)
+    owner = models.ForeignKey(Subject)
+    
+    @property
+    def balance(self):
+        """The balance of this account (as a signed Decimal number)."""
+        raise NotImplementedError 
+    
+    @property
+    def path(self):
+        """
+        The tree path needed to reach this account from the root of the account system,
+        in the form 'root:account:subaccount:...' .
+        """
+        raise NotImplementedError 
+    
+    
+    @property
+    def root(self):
+        """The root account for the account system this account belongs to."""
+        raise NotImplementedError 
+    
+    
     def __unicode__(self):
-        #FIXME: Caught TypeError while rendering: coercing to Unicode: need string or buffer, Decimal found
-        #return self.balance
-        return _("%(balance)s") % {'balance' : self.balance}
+        return _("Account %(path)s of the system owned by %(subject)s") % {'path':self.path, 'subject':self.root.owner}
 
 class Transaction(models.Model):
     """
@@ -54,12 +75,25 @@ class Transaction(models.Model):
     * a destination/target account
     * the amount of money transferred from/to both directions
     * the date when it happened
-    * a reason for the transfer 
+    * a reason for the transfer
+    * who autorized the transaction 
     """
-    #TODO: This is the basis of the economic part. To discuss and extend
-    account = models.ForeignKey(Account)
-    amount = CurrencyField()
-    causal = models.CharField(max_length=512, help_text=_("causal of economic movement"))    
+
+    # source account for the transaction
+    source = models.ForeignKey(Account, related_name='outgoing_transaction_set')
+    # target account for the transaction
+    destination = models.ForeignKey(Account, related_name='incoming_transaction_set')
+    # A transaction can have a plus- and minus- part, or both
+    plus_amount = CurrencyField(blank=True, null=True)
+    minus_amount = CurrencyField(blank=True, null=True)
+    # given the transaction type, some fields can be auto-set (e.g. source/destination account)
+    type = models.CharField(max_length=128, choices=TRANSACTION_TYPES)
+    # when the transaction happened
+    date = models.DateTimeField(default=datetime.now)
+    # what the transaction represents
+    description = models.CharField(max_length=512, help_text=_("Reason of the transaction"))
+    # who triggered the transaction
+    issuer = models.ForeignKey(Subject)     
 
     def __unicode__(self):
-        return _("%(amount)s (causal: %(causal)s)") % {'amount' : self.amount, 'causal' : self.causal}
+        return _("%(type)s issued by %(issuer)s at %(date)s") % {'type' : self.type, 'issuer' : self.issuer, 'date' : self.date}
