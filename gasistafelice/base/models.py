@@ -224,8 +224,25 @@ class PermissionResource(Resource, PermissionBase):
     """
     pass
 
-class Person(models.Model, PermissionResource):
-    """A Person is an anagraphic record of a human being.
+class Subject(models.Model):
+    """ 
+    A trivial mix-in class useful to mark a model as a 'subjective' one.
+    
+    A subjective model is defined as one whose instances can play some specific active roles,
+    such as owning a financial account, being charged for an invoice, and so on.
+    
+    To mark a model as subjective, just include the `Subject` class among its base classes,
+    *after* any concrete model classes.    
+    
+    Then, to check wheter a model `Foo` is subjective, just use `issubclass(Foo, Subject)`.
+    """
+    class Meta:
+        abstract = True
+
+
+class Person(models.Model, PermissionResource, Subject):
+    """
+    A Person is an anagraphic record of a human being.
     It can be a User or not.
     """
 
