@@ -236,11 +236,10 @@ class Subject(models.Model):
     
     Then, to check wheter a model `Foo` is subjective, just use `issubclass(Foo, Subject)`.
     """
-    class Meta:
-        abstract = True
+    pass
 
 
-class Person(models.Model, PermissionResource, Subject):
+class Person(Subject, PermissionResource):
     """
     A Person is an anagraphic record of a human being.
     It can be a User or not.

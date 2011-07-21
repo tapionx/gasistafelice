@@ -16,15 +16,13 @@ from gasistafelice.auth.models import ParamRole
 
 from gasistafelice.supplier.models import Supplier, SupplierStock
 from gasistafelice.gas.managers import GASMembersManager
-from gasistafelice.bank.models import Account
 
 from gasistafelice.des.models import DES
-
 
 from decimal import Decimal
 
 
-class GAS(models.Model, PermissionResource, Subject):
+class GAS(Subject, PermissionResource):
 
     """A group of people which make some purchases together.
 
@@ -39,11 +37,6 @@ class GAS(models.Model, PermissionResource, Subject):
     membership_fee = CurrencyField(default=Decimal("0"), help_text=_("Membership fee for partecipating in this GAS"), blank=True)
 
     suppliers = models.ManyToManyField(Supplier, through='GASSupplierSolidalPact', null=True, blank=True, help_text=_("Suppliers bound to the GAS through a solidal pact"))
-
-    #, editable=False: admin validation refers to field 'account_state' that is missing from the form
-    account = models.ForeignKey(Account, null=True, blank=True, related_name="gas_set", help_text=_("GAS manage all bank account for GASMember and PDS."))
-    #TODO: change name
-    liquidity = models.ForeignKey(Account, null=True, blank=True, related_name="gas_set2", help_text=_("GAS have is own bank account. "))
 
     #active = models.BooleanField()
     birthday = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, help_text=_("Born"))
@@ -128,9 +121,7 @@ class GAS(models.Model, PermissionResource, Subject):
         if not self.pk:
 
             self.config = GASConfig()
-            self.account = Account.objects.create(balance=0)
-            self.liquidity = Account.objects.create(balance=0)
-
+            
         # This should never happen, but is it reasonable
         # that an installation has only one DES
         try:
@@ -229,7 +220,7 @@ class GASConfig(models.Model, PermissionResource):
         
         return super(GASConfig, self).clean()
 
-class GASMember(models.Model, PermissionResource, Subject):
+class GASMember(Subject, PermissionResource):
     """A bind of a Person into a GAS.
     Each GAS member specifies which Roles he is available for.
     This way, every time there is a need to assign one or more GAS Members to a given Role,
@@ -242,7 +233,6 @@ class GASMember(models.Model, PermissionResource, Subject):
     gas = models.ForeignKey(GAS)
     id_in_gas = models.CharField(_("Card number"), max_length=10, blank=True, null=True, help_text=_("GAS card number"))    
     available_for_roles = models.ManyToManyField(Role, null=True, blank=True, related_name="gas_member_available_set")
-    account = models.ForeignKey(Account, null=True, blank=True)
     membership_fee_payed = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, help_text=_("When was the last the annual quote payment"))
 
     objects = GASMembersManager()
@@ -487,8 +477,6 @@ class GASSupplierSolidalPact(models.Model, PermissionResource):
     )    
 
     default_withdrawal_place = models.ForeignKey(Place, related_name="pact_default_withdrawal_place_set", null=True, blank=True)
-
-    account = models.ForeignKey(Account, null=True, blank=True)
 
     history = HistoricalRecords()
     

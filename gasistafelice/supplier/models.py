@@ -20,7 +20,7 @@ from gasistafelice.des.models import DES
 from gasistafelice.auth import SUPPLIER_REFERRER
 from gasistafelice.auth.utils import register_parametric_role
 
-class Supplier(models.Model, PermissionResource, Subject):
+class Supplier(Subject, PermissionResource):
     """An actor having a stock of Products for sale to the DES."""
 
     name = models.CharField(max_length=128) 
@@ -63,7 +63,7 @@ class Supplier(models.Model, PermissionResource, Subject):
         return rv   
 
     
-class SupplierReferrer(models.Model, PermissionResource, Subject):
+class SupplierReferrer(Subject, PermissionResource):
     supplier = models.ForeignKey(Supplier)
     person = models.ForeignKey(Person)
     job_title = models.CharField(max_length=256, blank=True)
