@@ -108,9 +108,9 @@ class Invoice(models.Model):
     for example, when an invoice is payed, the system could automatically create a transaction reflecting this action.     
     """
     # who issued the invoice
-    issuer = models.ForeignKey(Subject)
+    issuer = models.ForeignKey(Subject, related_name='issued_invoice_set')
     # who have to pay for the invoice
-    recipient = models.ForeignKey(Subject)
+    recipient = models.ForeignKey(Subject, related_name='received_invoice_set')
     # invoice's amount (excluding taxes)
     net_amount = CurrencyField()
     # taxes due for the invoice (VAT,..)
