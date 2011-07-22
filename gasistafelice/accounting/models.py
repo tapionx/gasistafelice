@@ -5,7 +5,7 @@ from django.contrib.contenttypes import generic
 
 from gasistafelice.base.fields import CurrencyField
 
-from consts import ACCOUNT_TYPES, TRANSACTION_TYPES
+from django.conf import settings 
 
 from datetime import datetime
 from decimal import Decimal
@@ -56,7 +56,7 @@ class Account(models.Model):
     
     parent = models.ForeignKey('Account')
     name = models.CharField(max_length=128)
-    type = models.CharField(max_length=128, choices=ACCOUNT_TYPES)
+    type = models.CharField(max_length=128, choices=settings.ACCOUNT_TYPES)
     placeholder = models.BooleanField(default=False)
     owner = models.ForeignKey(Subject)
     
@@ -110,7 +110,7 @@ class Transaction(models.Model):
     plus_amount = CurrencyField(blank=True, null=True)
     minus_amount = CurrencyField(blank=True, null=True)
     # given the transaction type, some fields can be auto-set (e.g. source/destination account)
-    type = models.CharField(max_length=128, choices=TRANSACTION_TYPES)
+    type = models.CharField(max_length=128, choices=settings.TRANSACTION_TYPES)
     # when the transaction happened
     date = models.DateTimeField(default=datetime.now)
     # what the transaction represents

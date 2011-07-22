@@ -1,5 +1,7 @@
 # Django settings for gasistafelice project.
 
+from django.utils.translation import ugettext_lazy as _
+
 import os 
 
 DEBUG = True
@@ -36,7 +38,7 @@ TIME_ZONE = 'Europe/Rome'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'it'
+LANGUAGE_CODE = 'en'
 
 SITE_ID = 1
 
@@ -97,9 +99,9 @@ INSTALLED_APPS = (
     'gasistafelice.accounting',
     'gasistafelice.supplier',
     'gasistafelice.gas',
-    'gasistafelice.admin',
-    'gasistafelice.gas_admin',
-    'gasistafelice.rest',
+     #'gasistafelice.admin',
+     #'gasistafelice.gas_admin',
+     #'gasistafelice.rest',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -143,3 +145,21 @@ RESOURCE_PAGE_BLOCKS = {
 LOGIN_URL = "/%saccounts/login/" % URL_PREFIX
 CAN_CHANGE_CONFIGURATION_VIA_WEB = False
 ENABLE_OLAP_REPORTS = False
+
+######################################################################################
+# Accounting-related settings
+ACCOUNT_TYPES = [
+    ('ROOT', _('Root account')),
+    ('INCOME', _('Incomes')),
+    ('EXPENSE', _('Expenses')),
+    ('ASSET', _('Asset')),
+    ('LIABILITY', _('Liability')),
+    ('INVOICES', _('Invoices')),
+]
+
+TRANSACTION_TYPES = [
+    ('SUPPLIER_ORDER_PAYMENT', _('Payment of an order to a supplier')),
+    ('RECHARGE', _('Recharge of a GAS member account')),
+    ('GASMEMBER_ORDER_PAYMENT', _('Payment of an order from a GAS member')),
+    ('MEMBERSHIP_FEE_PAYMENT', _('Payment of a membership fee')),   
+]
