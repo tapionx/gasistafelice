@@ -1,17 +1,40 @@
 from django.db import models
-
 from django.utils.translation import ugettext_lazy as _
-
-from permissions.models import Role
-from permissions import PermissionBase # mix-in class for permissions management
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 
 from gasistafelice.base.fields import CurrencyField
-from gasistafelice.base.models import Subject
 
 from consts import ACCOUNT_TYPES, TRANSACTION_TYPES
 
 from datetime import datetime
 from decimal import Decimal
+
+class Subject(models.Model):
+    """ 
+    A wrapper model meants to provide a uniform interface to 'subjective models'. 
+    
+    A subjective model is defined as one whose instances can play some specific active roles,
+    such as owning a financial account, being charged for an invoice, and so on.
+    
+    This model use Django's `ContentType` framework in order to allow a model 
+    to define foreign-key o many-to-many relationship with a generic subjective model.
+    
+    For example, if the `bar` field in the `Foo` model class should be able to relate to 
+    several different subjective models (as for example `Person`, `Company`, etc.), 
+    just declare it as follows:
+    
+    class Foo(models.Model):
+        # ...
+        bar = models.ForeignKey(Subject)
+        # ...    
+    """
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    instance = generic.GenericForeignKey(ct_field="content_type", fk_field="object_id")
+    
+    def __unicode__(self):
+        return unicode(self.instance)
 
 class Account(models.Model):
     """

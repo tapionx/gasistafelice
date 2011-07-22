@@ -13,14 +13,14 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from history.models import HistoricalRecords
 
 from gasistafelice.base.const import SUPPLIER_FLAVOUR_LIST, ALWAYS_AVAILABLE
-from gasistafelice.base.models import Resource, PermissionResource, Person, Place, Subject
+from gasistafelice.base.models import Resource, PermissionResource, Person, Place
 from gasistafelice.base.fields import CurrencyField
 from gasistafelice.des.models import DES
 
 from gasistafelice.auth import SUPPLIER_REFERRER
 from gasistafelice.auth.utils import register_parametric_role
 
-class Supplier(Subject, PermissionResource):
+class Supplier(models.Model, PermissionResource):
     """An actor having a stock of Products for sale to the DES."""
 
     name = models.CharField(max_length=128) 
@@ -63,7 +63,7 @@ class Supplier(Subject, PermissionResource):
         return rv   
 
     
-class SupplierReferrer(Subject, PermissionResource):
+class SupplierReferrer(models.Model, PermissionResource):
     supplier = models.ForeignKey(Supplier)
     person = models.ForeignKey(Person)
     job_title = models.CharField(max_length=256, blank=True)

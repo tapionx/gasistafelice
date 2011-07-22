@@ -7,7 +7,7 @@ from workflows.models import Workflow
 from history.models import HistoricalRecords
 
 from gasistafelice.base.fields import CurrencyField
-from gasistafelice.base.models import PermissionResource, Person, Place, Subject
+from gasistafelice.base.models import PermissionResource, Person, Place
 from gasistafelice.base.const import DAY_CHOICES
 
 from gasistafelice.auth import GAS_REFERRER_SUPPLIER, GAS_REFERRER_TECH, GAS_REFERRER_CASH, GAS_MEMBER
@@ -22,7 +22,7 @@ from gasistafelice.des.models import DES
 from decimal import Decimal
 
 
-class GAS(Subject, PermissionResource):
+class GAS(models.Model, PermissionResource):
 
     """A group of people which make some purchases together.
 
@@ -220,7 +220,7 @@ class GASConfig(models.Model, PermissionResource):
         
         return super(GASConfig, self).clean()
 
-class GASMember(Subject, PermissionResource):
+class GASMember(models.Model, PermissionResource):
     """A bind of a Person into a GAS.
     Each GAS member specifies which Roles he is available for.
     This way, every time there is a need to assign one or more GAS Members to a given Role,
