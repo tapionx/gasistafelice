@@ -1,4 +1,0 @@
-{% for id in ids %}
-    
-        <option value="{{resource_type}}/{{id.id}}/">{{id.name}}</option>
-    {% endfor %}

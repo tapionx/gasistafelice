@@ -1,3 +1,0 @@
-<resource type="{{ value.resource_type}}" id="{{value.id}}"> 
-    {{value}}
-</resource>
