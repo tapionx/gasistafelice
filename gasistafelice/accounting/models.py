@@ -1,7 +1,11 @@
 from django.db import models
+from django.db.models import get_model
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 from gasistafelice.base.fields import CurrencyField
 
@@ -34,7 +38,19 @@ class Subject(models.Model):
     instance = generic.GenericForeignKey(ct_field="content_type", fk_field="object_id")
     
     def __unicode__(self):
-        return unicode(self.instance)
+        return " %(ct)s %(instance)s" % {'ct':str(self.content_type).capitalize(), 'instance':self.instance}
+
+subjective_models = [get_model(*model_str.split('.')) for model_str in settings.SUBJECTIVE_MODELS]
+
+# when a new instance of a subjective model is created, 
+# add a corresponding `Subject` instance pointing to it
+# TODO: deal with subjective models's instances added via fixtures
+@receiver(post_save)
+def subjectify(sender, instance, created, **kwargs):
+    if sender in subjective_models and created:
+        ct = ContentType.objects.get_for_model(sender)
+        Subject.objects.create(content_type=ct, object_id=instance.pk)     
+    
 
 class Account(models.Model):
     """
