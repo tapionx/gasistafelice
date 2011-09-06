@@ -60,6 +60,9 @@ class Block(BlockSSDataTables):
         # to get GASSupplierOrderProduct or GASSupplierStock respectively
         return request.resource.orderable_products
 
+    def _get_resource_pdflist(self, request):
+        return request.resource.ordered_products
+
     def _get_edit_multiple_form_class(self):
         return GASSupplierOrderProductFormSet
 
@@ -88,8 +91,8 @@ class Block(BlockSSDataTables):
         for i,form in enumerate(formset):
 
             records.append({
-               'product' : el.stock.product,
-               'price' : floatformat(el.stock.price, 2),
+               'product' : el.product,
+               'price' : floatformat(el.order_price, 2),
                'tot_gasmembers' : el.tot_gasmembers,
                'tot_amount' : el.ordered_amount,
                'tot_price' : el.tot_price,
@@ -98,6 +101,26 @@ class Block(BlockSSDataTables):
             })
 
         return formset, records, {}
+
+
+    def _get_pdfrecords(self, querySet):
+        """Return records of rendered table fields."""
+
+        records = []
+        c = querySet.count()
+
+        for el in querySet:
+            if el.tot_price > 0:
+                records.append({
+                   'product' : unicode(el.product.name.replace(u'\u2019', '\'')),
+                   'price' : floatformat(el.order_price, 2),
+                   'tot_gasmembers' : el.tot_gasmembers,
+                   'tot_amount' : el.ordered_amount,
+                   'tot_price' : floatformat(el.tot_price, 2),
+                })
+
+        return records
+
 
     def get_response(self, request, resource_type, resource_id, args):
 
@@ -116,7 +139,7 @@ class Block(BlockSSDataTables):
         order = self.resource.order
         context_dict = {
             'order' : order,
-            'records' : self._get_records(self.request, self._get_resource_list(self.request))[1], #ho usato get_records, ma puoi produrre i record come preferisci
+            'records' : self._get_pdfrecords(self._get_resource_list(self.request)), #ho usato get_records, ma puoi produrre i record come preferisci
             'user' : self.request.user,
             'total_amount' : self.resource.total_ordered, #da Model da confrontare con il calcolato
         }

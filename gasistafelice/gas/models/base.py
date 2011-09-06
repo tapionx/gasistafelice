@@ -447,7 +447,7 @@ class GASConfig(models.Model, PermissionResource):
         return self.default_withdrawal_place or self.gas.headquarter
 
 class GASMember(models.Model, PermissionResource):
-    """A bind of a Person into a GAS.
+    """A bind of a Person into a GAS.GASSupplierStock
     Each GAS member specifies which Roles he is available for.
     This way, every time there is a need to assign one or more GAS Members to a given Role,
     there is already a group of people to choose from. 

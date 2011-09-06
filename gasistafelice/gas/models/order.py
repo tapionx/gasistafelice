@@ -99,7 +99,7 @@ class GASSupplierOrder(models.Model, PermissionResource):
 
     #-------------------------------------------------------------------------------#
 
-    def set_default_stock_set(self):
+    def set_default_gasstock_set(self):
         '''
         A helper function associating a default set of products to a GASSupplierOrder.
         
@@ -111,7 +111,7 @@ class GASSupplierOrder(models.Model, PermissionResource):
             self._msg.append('Configuration of auto generation of the product\'s order is not abilitated. To automatism the procedure set auto_populate_products to True')
             return
 
-        stocks = GASSupplierStock.objects.filter(pact=self.pact, stock__supplier=self.pact.supplier)
+        stocks = GASSupplierStock.objects.filter(pact=self.pact, gasstock__supplier=self.pact.supplier)
         for s in stocks:
             if s.enabled:
                 GASSupplierOrderProduct.objects.create(order=self, gasstock=s)
@@ -216,7 +216,9 @@ class GASSupplierOrder(models.Model, PermissionResource):
     
     @property
     def orderable_products(self):
+        #return GASSupplierOrderProduct.objects.filter(gasstock__in=self.orderable_product_set.all())
         return self.orderable_product_set.all()
+        #return self.gasstock_set.all()
 
     @property
     def ordered_products(self):
@@ -226,6 +228,7 @@ class GASSupplierOrder(models.Model, PermissionResource):
     def stocks(self):
         from supplier.models import SupplierStock
         stocks_pk=map(lambda x: x[0], self.gasstock_set.values('stock'))
+        #stocks_pk=map(lambda x: x[0], self.gasstock_set.values('gasstock'))
         return SupplierStock.objects.filter(pk__in=stocks_pk)
 
     @property
@@ -252,7 +255,7 @@ class GASSupplierOrder(models.Model, PermissionResource):
             set_workflow(self, w)
 
         if created:
-            self.set_default_stock_set()
+            self.set_default_gasstock_set()
 
 #-------------------------------------------------------------------------------
 
@@ -300,12 +303,17 @@ class GASSupplierOrderProduct(models.Model, PermissionResource):
         return self.gasmember_order_set.count()
 
     @property
+    def ordered_price(self):
+        return self.order_price
+
+    @property
     def tot_price(self):
         # grab all GASMemberOrders related to this product and issued by members of the right GAS
-        gmo_list = self.gasmember_order_set.values('ordered_price')
+        gmo_list = self.gasmember_order_set.all() #values('payed') #ordered_price')
         amount = 0 
         for gmo in gmo_list:
-            amount += gmo['ordered_price']
+            #amount += gmo['payed']
+            amount += gmo.payed
         return amount 
     
     @property
@@ -319,6 +327,12 @@ class GASSupplierOrderProduct(models.Model, PermissionResource):
     @property
     def product(self):
         return self.gasstock.product
+
+    @property
+    def product_name(self):
+        return 'pippo'
+        #return unicode(self.gasstock.stock.product.name)
+
 
     
 class GASMemberOrder(models.Model, PermissionResource):
@@ -355,7 +369,15 @@ class GASMemberOrder(models.Model, PermissionResource):
 
     @property
     def product(self):
-        return self.ordered_product.stock.product
+        #return self.ordered_product.stock.product
+        return self.ordered_product.gasstock.product
+
+    @property
+    def payed(self):
+        if (not self.ordered_price is None) & (not self.ordered_amount is None):
+            return self.ordered_price * self.ordered_amount
+        else:
+            return 0
 
     @property
     def email(self):
@@ -392,7 +414,7 @@ class GASMemberOrder(models.Model, PermissionResource):
         transition = DefaultTransition.objects.get(workflow=self.workflow, state=state).transition
         do_transition(self, transition, user)
  
-    def save(self, *args, **ke):
+    def save(self, *args, **kw):
 
         if not self.workflow:
             # Set default workflow

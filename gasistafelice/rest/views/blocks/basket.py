@@ -37,7 +37,6 @@ class Block(BlockSSDataTables):
         user_actions = []
 
         if not request.resource.gas.config.gasmember_auto_confirm_order:
-
             #TODO seldon: does this work for a GASMember?
             #if request.user.has_perm(EDIT, obj=request.resource):
             if request.user == request.resource.person.user:
@@ -50,6 +49,8 @@ class Block(BlockSSDataTables):
                     ),
 
                 ]
+
+
         user_actions += [
             ResourceBlockAction( 
                 block_name = self.BLOCK_NAME,
@@ -82,7 +83,7 @@ class Block(BlockSSDataTables):
 
         return records
 
-    def _get_pdfrecords(self, request, querySet):
+    def _get_pdfrecords(self, querySet):
         """Return records of rendered table fields."""
 
         records = []
@@ -94,8 +95,9 @@ class Block(BlockSSDataTables):
                'order' : el.ordered_product.order.pk,
                'supplier' : el.ordered_product.stock.supplier,
                'product' : el.product,
-               'amount' : el.ordered_amount,
                'price' : floatformat(el.ordered_price, 2),
+               'amount' : el.ordered_amount,
+               'payed' : floatformat(el.payed, 2),
             })
 
         return records
@@ -121,11 +123,11 @@ class Block(BlockSSDataTables):
 
     def _create_pdf(self):
 
-        # Dati di esempio
+        #FIXME: AttributeError 'Block' object has no attribute 'resource'
         gasmember = self.resource
         context_dict = {
             'gasmember' : gasmember,
-            'records' : self._get_pdfrecords(self.request, self._get_resource_list(self.request))[1], 
+            'records' : self._get_pdfrecords(self._get_resource_list(self.request)),
             'user' : self.request.user,
             'total_amount' : self.resource.total_basket,
         }
