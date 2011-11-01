@@ -1213,7 +1213,7 @@ class GASSupplierSolidalPact(models.Model, PermissionResource):
                     raise WrongPermissionCheck('CREATE', cls, context)
 
         return user in allowed_users
- 
+
     # Row-level EDIT permission
     def can_edit(self, user, context):
         # Who can edit details for a pact in a GAS ?
