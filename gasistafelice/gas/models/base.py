@@ -1202,9 +1202,10 @@ class GASSupplierSolidalPact(models.Model, PermissionResource):
             else:
                 # TODO: all GAS tech referrers and referrers suppliers can create a pact in a DES
                 # Within the form and authorization check, GAS choices will be limited
-                allowed_users = des.admins
+                #allowed_users = des.admins #local variable 'des' referenced before assignment
+                allowed_users = supplier.tech_referrers | supplier.referrers
         else:
-            allowed_users = gas.tech_referrers | gas.supplier_referrers 
+            allowed_users = gas.tech_referrers | gas.supplier_referrers
         return allowed_users
  
     # Row-level EDIT permission
