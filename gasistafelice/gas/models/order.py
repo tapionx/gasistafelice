@@ -105,7 +105,11 @@ class GASSupplierOrder(models.Model, PermissionResource):
         from django.utils.encoding import smart_str
         n = str(self.pk) + '_'
         n += smart_str(slugify(self.pact.supplier.name).replace('-', '_'))
-        n += '_{0:%Y%m%d}'.format(self.delivery.date)
+        #FIXME: Why Delivery must exist and delivery date too (Until order type is not implemented!)
+        if self.delivery and self.delivery.date:
+            n += '_{0:%Y%m%d}'.format(self.delivery.date)
+        else:
+            n += '_{0:%Y%m%d}'.format(datetime.now())
         return n
         return self.pact.supplier.name.replace('-', '_').replace(' ', '_')
 
