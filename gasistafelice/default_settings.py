@@ -335,6 +335,6 @@ from simple_accounting_settings import *
 
 DEFAULT_FROM_EMAIL = "gasistafelice@desmacerata.it"
 NOTIFICATION_BACKENDS = (
-    ("email", "des_notification.backends.email.EmailBackend"),
+    ("email", "notification.backends.email.EmailBackend"),
 )
 
