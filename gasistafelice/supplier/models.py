@@ -217,7 +217,7 @@ class Supplier(models.Model, PermissionResource):
         """
 
         allowed_users = User.objects.none()
-        ctx_keys_to_check = set('gas', 'site')
+        ctx_keys_to_check = set(['gas', 'site'])
         ctx_keys = context.keys()
 
         if len(ctx_keys) > 1:
@@ -698,7 +698,14 @@ class Product(models.Model, PermissionResource):
         ordering = ('name',)
 
     def __unicode__(self):
-        return self.name
+        rv = u"%(muppu)s %(mu)s %(of)s %(name)s" % {
+            'muppu' : self.muppu,
+            'mu' : self.mu.symbol,
+            'of' : ugettext('of'),
+            'name': self.name
+        }
+        
+        return rv
 
     def clean(self):
 

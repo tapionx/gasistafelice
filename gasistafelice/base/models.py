@@ -203,8 +203,9 @@ class Resource(object):
     def updaters(self):
         """Returns User QuerySet of who has updated the resource."""
        
-        self_updaters = \
-            unordered_uniq(self._default_history.filter(id=self.pk, history_type="~").values_list('history_user'))
+        self_updaters = unordered_uniq(
+                self._default_history.filter(id=self.pk, history_type="~").values_list('history_user')
+            )
 
         return User.objects.filter(pk__in=map(lambda x: x[0].pk, self_updaters))
 
@@ -413,7 +414,7 @@ class Resource(object):
 
         Usually you SHOULD NOT NEED TO OVERRIDE IT in subclasses
         """
-        return ", ".join(ordered_uniq(map(lambda x: x[0], self.preferred_email_contacts.values_list('value'))))
+        return ", ".join(unordered_uniq(map(lambda x: x[0], self.preferred_email_contacts.values_list('value'))))
 
     @property
     def preferred_email_contacts(self):
@@ -506,7 +507,7 @@ class Person(models.Model, PermissionResource):
     ssn = models.CharField(max_length=128, unique=True, editable=False, blank=True, null=True, help_text=_('Write your social security number here'),verbose_name=_('Social Security Number'))
     contact_set = models.ManyToManyField('Contact', null=True, blank=True,verbose_name=_('contacts'))
     user = models.OneToOneField(User, null=True, blank=True,verbose_name=_('User'))
-    address = models.OneToOneField('Place', null=True, blank=True,verbose_name=_('main address'))
+    address = models.ForeignKey('Place', null=True, blank=True,verbose_name=_('main address'))
     avatar = models.ImageField(upload_to=get_resource_icon_path, null=True, blank=True, verbose_name=_('Avatar'))
     website = models.URLField(verify_exists=True, blank=True, verbose_name=_("web site"))
 
@@ -732,12 +733,13 @@ class Person(models.Model, PermissionResource):
     def can_create(cls, user, context):
         # Who can create a new Person in a DES ?
         # * DES administrators
+        allowed_users = User.objects.none()
         try:
             des = context['site']
         except KeyError:
             raise WrongPermissionCheck('CREATE', cls, context)
         else:
-            allowed_users = des.admins            
+            allowed_users = des.gas_tech_referrers            
 
         return user in allowed_users 
         
