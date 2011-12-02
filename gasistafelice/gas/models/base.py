@@ -319,7 +319,7 @@ class GAS(models.Model, PermissionResource):
             
     def setup_accounting(self):
         self.subject.init_accounting_system()
-        system = self.accounting_system
+        system = self.accounting.system
         ## setup a base account hierarchy
         # GAS's cash       
         system.add_account(parent_path='/', name='cash', kind=account_type.asset) 
@@ -734,7 +734,7 @@ class GASMember(models.Model, PermissionResource):
         super(GASMember, self).save(*args, **kw)
         
     def setup_accounting(self):
-        person_system = self.person.subject.accounting_system
+        person_system = self.person.accounting.system
         gas_system = self.gas.subject.accounting_system
         
         ## account creation
@@ -745,11 +745,11 @@ class GASMember(models.Model, PermissionResource):
         except Account.DoesNotExist:
             person_system.add_account(parent_path='/expenses', name='gas', kind=account_type.expense, is_placeholder=True)
         # base account for expenses related to this GAS membership
-        person_system.add_account(parent_path='/expenses/', name=self.gas.uid, kind=account_type.expense, is_placeholder=True)
+        person_system.add_account(parent_path='/expenses/gas', name=self.gas.uid, kind=account_type.expense, is_placeholder=True)
         # recharges
-        person_system.add_account(parent_path='/expenses/' + self.gas.uid, name='recharges', kind=account_type.expense)
+        person_system.add_account(parent_path='/expenses/gas/' + self.gas.uid, name='recharges', kind=account_type.expense)
         # membership fees
-        person_system.add_account(parent_path='/expenses/' + self.gas.uid, name='fees', kind=account_type.expense)
+        person_system.add_account(parent_path='/expenses/gas/' + self.gas.uid, name='fees', kind=account_type.expense)
         ## GAS-side   
         gas_system.add_account(parent_path='/members', name=self.member.uid, kind=account_type.asset)
     
@@ -1174,10 +1174,10 @@ class GASSupplierSolidalPact(models.Model, PermissionResource):
     def setup_accounting(self):
         ## create accounts for logging GAS <-> Supplier transactions
         # GAS-side
-        gas_system = self.gas.subject.accounting_system
+        gas_system = self.gas.accounting.system
         gas_system.add_account(parent_path='/expenses/suppliers', name=self.supplier.uid, kind=account_type.expense)
         # Supplier-side
-        supplier_system = self.supplier.subject.accounting_system
+        supplier_system = self.supplier.accounting.system
         supplier_system.add_account(parent_path='/incomes/gas', name=self.gas.uid, kind=account_type.income)
 
     def setup_data(self):
