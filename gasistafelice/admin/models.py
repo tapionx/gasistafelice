@@ -19,6 +19,8 @@ from gasistafelice.users import models as user_models
 from simple_accounting import models as accounting_models
 from gas.models.base import GAS
 
+from workflows.models import StateObjectRelation
+
 #from registration.models import RegistrationProfile as MyProfile
 
 ########################## Inlines #######################

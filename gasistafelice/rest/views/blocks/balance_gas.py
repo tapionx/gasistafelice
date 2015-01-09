@@ -62,6 +62,7 @@ class Block(AbstractBlock):
     #                                return self.response_success()
 
                                 except Exception, e:
+                                    raise
                                     msg = ugettext("Transaction invoice ERROR: ") + e.message
                                     #WAS return self.response_error(form.errors)
                                     #WAS form._errors.append(msg)
