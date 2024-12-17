@@ -478,11 +478,12 @@ def list_comments(request):
     for prr in request.user.principal_param_role_set.all():
         for param_role in prr.role.params:
             resource = param_role.value
-            resources.append(resource)
-            if resource.resource_type == "gas":
-                resources += resource.orders.open()
-                resources += resource.orders.closed()
-                resources += resource.pacts
+            if resource is not None:
+                resources.append(resource)
+                if resource.resource_type == "gas":
+                    resources += resource.orders.open()
+                    resources += resource.orders.closed()
+                    resources += resource.pacts
 
     rnotes = get_notes_for(resources)
     

@@ -1,5 +1,6 @@
 
 from django.contrib.auth.models import User
+from django.conf import settings
 import notification
 
 from gasistafelice.gas.models import GASSupplierSolidalPact, GASMember
@@ -23,7 +24,7 @@ def send_gas_notification(gas):
     else:
         recipients = User.objects.filter(is_superuser=True)
     
-    notification.send(recipients, "gas_notification", {
+    notification.models.send(recipients, "gas_notification", {
         'gas' : gas,
         'closing_orders' : closing_orders,
     }, on_site=False)

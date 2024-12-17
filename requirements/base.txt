@@ -18,5 +18,5 @@ psycopg2==2.5.2
 reportlab==2.7
 simplejson==2.0.9
 six==1.6.1
--e git+https://github.com/chrisglass/xhtml2pdf@a94b95b0570b8e8e3ebf296ca62d057834438560#egg=xhtml2pdf-dev
+xhtml2pdf=0.2.4
 -e git+https://github.com/befair/django-reversion.git@release-1.5.7-middleware-with-user#egg=django-reversion

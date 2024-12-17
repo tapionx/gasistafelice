@@ -215,8 +215,8 @@ class GasAccountingProxy(AccountingProxy):
         if not refs:
             refs = [order]
         try:
-            tx = Transaction.objects.get_by_reference(refs).get(kind='PAYMENT')
-        except Transaction.DoesNotExist:
+            tx = Transaction.objects.get_by_reference(refs).filter(kind='PAYMENT')[0]
+        except IndexError:
             return None
         else:
             return tx

@@ -971,8 +971,6 @@ WHERE order_id = %s \
         if not isinstance(to, list):
             to = [to]
 
-        log.debug('SENDING EMAIL: self=%s to=%s, cc=%s' % (self, to, cc))
-
         try:
             log.debug('self.gas.preferred_email_contacts %s ' % self.gas.preferred_email_contacts)
             sender = self.gas.preferred_email_contacts[0].value
@@ -980,6 +978,8 @@ WHERE order_id = %s \
             msg = ugettext("GAS cannot send email, because no preferred email for GAS specified")
             sender = settings.DEFAULT_FROM_EMAIL
             more_info += '%s --> %s' % (msg, sender)
+
+        log.debug('SENDING EMAIL: self=%s to=%s, cc=%s, sender=%s' % (self, to, cc, sender))
 
         subject = u"[ORDINE] %(gas_id_in_des)s - %(ord)s" % {
             'gas_id_in_des' : self.gas.id_in_des,
@@ -1188,7 +1188,7 @@ WHERE order_id = %s \
         for el in querySet:
             if el.tot_price > 0:
                 records.append({
-                   'product' : el.gasstock,
+                   'product' : smart_unicode(el.gasstock),
                    'rep_price' : el.gasstock.report_price,
                    'price' : el.order_price,
                    'tot_gasmembers' : el.tot_gasmembers,

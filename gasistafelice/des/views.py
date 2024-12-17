@@ -29,16 +29,16 @@ def cmp_orders(a, b):
 @never_cache
 def login(request, *args, **kw):
 
-    gas_list = list(GAS.objects.all())
-    gas_list.sort(cmp_orders)
+    # gas_list = list(GAS.objects.all())
+    # gas_list.sort(cmp_orders)
 
     kw['extra_context'] = {
         'VERSION': settings.VERSION,
         'THEME' : settings.THEME,
         'MEDIA_URL' : settings.MEDIA_URL,
+        # 'gas_list': gas_list,
         'ADMIN_MEDIA_PREFIX' : settings.ADMIN_MEDIA_PREFIX,
-        'MAINTENANCE_MODE' : settings.MAINTENANCE_MODE,
-        'gas_list' : gas_list,
+        'MAINTENANCE_MODE' : settings.MAINTENANCE_MODE
     }
     if settings.MAINTENANCE_MODE:
         if request.method == "POST" and \

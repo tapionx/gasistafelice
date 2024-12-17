@@ -1521,7 +1521,7 @@ class GASSupplierStock(models.Model, PermissionResource):
             'symb' : symb,
             'price': "%.2f" % round(self.price,2),
         }
-        return rv
+        return smart_unicode(rv)
 
     @property
     def father_price(self):
@@ -1530,47 +1530,49 @@ class GASSupplierStock(models.Model, PermissionResource):
         This is useful to say how much it cost at liter or at kilo.
         """
 
+        rv = ""
+
         if self.stock.product.mu and self.stock.product.muppu:
 
             #find relative UnitsConversion
             #TODO 1a) add boolean flag into UnitsConversion table to define father units
             #TODO or 1b) add boolean flag into UnitsConversion table to define father units
             if self.stock.product.mu.symbol == "DAM":
-                return self.set_father_price(self.price / 5, 'Lt')
-            if self.stock.product.mu.symbol == "Lt" and self.stock.product.muppu != 1:
-                return self.set_father_price(self.price / self.stock.product.muppu, self.stock.product.mu.symbol)
-            if self.stock.product.mu.symbol == "Ml":
-                return self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Lt')
-            if self.stock.product.mu.symbol == "Cl":
-                return self.set_father_price(self.price * 100 / self.stock.product.muppu, 'Lt')
-            if self.stock.product.mu.symbol == "Dl":
-                return self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Lt')
-            if self.stock.product.mu.symbol == "Gr":
-                return self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Kg')
-            if self.stock.product.mu.symbol == "Hg":
-                return self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Kg')
-            if self.stock.product.mu.symbol == "Kg" and self.stock.product.muppu != 1:
-                return self.set_father_price(self.price / self.stock.product.muppu, self.stock.product.mu.symbol)
+                rv = self.set_father_price(self.price / 5, 'Lt')
+            elif self.stock.product.mu.symbol == "Lt" and self.stock.product.muppu != 1:
+                rv = self.set_father_price(self.price / self.stock.product.muppu, self.stock.product.mu.symbol)
+            elif self.stock.product.mu.symbol == "Ml":
+                rv = self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Lt')
+            elif self.stock.product.mu.symbol == "Cl":
+                rv = self.set_father_price(self.price * 100 / self.stock.product.muppu, 'Lt')
+            elif self.stock.product.mu.symbol == "Dl":
+                rv = self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Lt')
+            elif self.stock.product.mu.symbol == "Gr":
+                rv = self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Kg')
+            elif self.stock.product.mu.symbol == "Hg":
+                rv = self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Kg')
+            elif self.stock.product.mu.symbol == "Kg" and self.stock.product.muppu != 1:
+                rv = self.set_father_price(self.price / self.stock.product.muppu, self.stock.product.mu.symbol)
         else:
             #This case should not be possible but the PU list offer the possibility to do it
             if self.stock.product.pu.symbol.strip() == "Ml":
-                return self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Lt')
-            if self.stock.product.pu.symbol.strip() == "Cl":
-                return self.set_father_price(self.price * 100 / self.stock.product.muppu, 'Lt')
-            if self.stock.product.pu.symbol.strip() == "Dl":
-                return self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Lt')
-            if self.stock.product.pu.symbol.strip() == "Gr":
-                return self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Kg')
-            if self.stock.product.pu.symbol.strip() == "Hg":
-                return self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Kg')
-        return ""
+                rv = self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Lt')
+            elif self.stock.product.pu.symbol.strip() == "Cl":
+                rv = self.set_father_price(self.price * 100 / self.stock.product.muppu, 'Lt')
+            elif self.stock.product.pu.symbol.strip() == "Dl":
+                rv = self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Lt')
+            elif self.stock.product.pu.symbol.strip() == "Gr":
+                rv = self.set_father_price(self.price * 1000 / self.stock.product.muppu, 'Kg')
+            elif self.stock.product.pu.symbol.strip() == "Hg":
+                rv = self.set_father_price(self.price * 10 / self.stock.product.muppu, 'Kg')
+        return smart_unicode(rv)
 
     @classmethod
     def set_father_price(self, price_per_unit, father_unit):
-        return u" a %(ppu)s\u20AC/%(mu)s" % {
+        return smart_unicode(" a %(ppu)s\u20AC/%(mu)s" % {
             'ppu' : "%.2f" % round(price_per_unit,2),
             'mu'  : father_unit
-        }
+        })
 
     class Meta:
         app_label = 'gas'

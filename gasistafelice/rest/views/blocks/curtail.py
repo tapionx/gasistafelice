@@ -230,6 +230,7 @@ class Block(BlockSSDataTables):
                             form.save()
 
                         except Exception, e:
+                            raise
                             msg = _("Curtail ERROR: ") + e.message
                             form._errors[0] = form.error_class([msg])
                             return self.response_error(form._errors)
